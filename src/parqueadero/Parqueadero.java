@@ -90,36 +90,34 @@ public class Parqueadero {
 
     }
   
-//mover x pasos    
+    //mover x pasos    
     public void mover(int pasos) {
         for (int i = pasos; i > 0; i--) {
             chofer.move();
         }
     }
-//dar x giros
-
+    
+    //dar x giros
     public void girar(int giros) {
-        for (int i = giros; i > 0; i--) {
-            chofer.turnLeft();
+            for (int i = giros; i > 0; i--) {
+                chofer.turnLeft();
+            }
         }
-    }
 
     //giros
     public void giroDerecha() {
         girar(3);
     }
-
     public void giroIzquierda() {
         girar(1);
     }
-
     public void delante() {
         mover(1);
     }
 
-    //identificador de zona libre  
+    //identificador de zona con mas espacio libres
     public int zona_libre() {
-        int zona = -1;
+        int zona = 6;
         int mas_espacio = -1;
         int espacios[] = {0, 0, 0};
         for (int i = 0; i < 3; i++) {
@@ -134,6 +132,9 @@ public class Parqueadero {
                 mas_espacio = espacios[i];
             }
         }
+        if(mas_espacio==0){
+        return zona;
+        }
         for (int i = 0; i < 3; i++) {
             if (espacios[i] == mas_espacio) {
                 zona = i;
@@ -143,8 +144,8 @@ public class Parqueadero {
         }
         return zona;
     }
-//identificador de espacio libre dentro de la zona
-
+    
+    //identificador de espacio libre dentro de la zona
     public int espacio_libre(int zona) {
         for (int i = 0; i < 5; i++) {
             if (matriz[i][zona] == null) {
@@ -153,24 +154,24 @@ public class Parqueadero {
         }
         return -1;
     }
-//busca si la placa ya existe
-
+    
+    //busca si la placa ya ha sido ingresada en el parqueadero
     public boolean buscar_placa(String placa) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (matriz[j][i] != null) {
-                    if (matriz[j][i].getIcon().getLabel().equals(placa)) {
-                        return true;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 5; j++) {
+                    if (matriz[j][i] != null) {
+                        if (matriz[j][i].getIcon().getLabel().equals(placa)) {
+                            return true;
+                        }
                     }
+
                 }
 
             }
-
+            return false;
         }
-        return false;
-    }
-//buscar placa en zona
 
+    //buscar placa en alguna zona y devuelve su posicion
     public int buscar_placa_zona(int zona, String placa) {
         for (int i = 0; i < 5; i++) {
             if (matriz[i][zona] != null && matriz[i][zona].getIcon().getLabel().equals(placa)) {
@@ -181,20 +182,39 @@ public class Parqueadero {
         return -1;
     }
 
-//ingresar vehiculo
+    //hacer factura devuelve el valor a cobrar
+    public double factura(double tiempo_segundos) {
+        double valor_pesos;
+        valor_pesos = tiempo_segundos * 5;        
+        return valor_pesos;
+    }
+
+    //tiempo en segs que lleva en el parqueadero
+    public long tiempo_dentro(long tiempo_de_entrada){
+        long tiempo_dentro;
+        long tiempo_actual = System.currentTimeMillis();
+        tiempo_dentro = (tiempo_actual - tiempo_de_entrada)/1000;
+        return tiempo_dentro;
+    }
+    
+    //ingresar vehiculo
     public boolean ingresar_vehiculo() {
+        int zona = zona_libre();
+        if(zona==6){
+            System.out.println("lo sentimos el parqueadero esta lleno, vuelva mas tarde");
+            return false;
+        }
         System.out.println("ingrese placa del vehiculo (letra y numero): ");
         String placa = teclado.nextLine();
-        System.out.println(placa);
         if (buscar_placa(placa) == true) {
             System.out.println("ya hay un vehiculo registrado con esa placa");
             return false;
-        }
+        }else{
+        int espacio = espacio_libre(zona);
         Thing carro = new Thing(ciudad, 5, 8);
         carro.getIcon().setLabel(placa);
         chofer.pickThing();
-        int zona = zona_libre();
-        int espacio = espacio_libre(zona);
+        
         while (chofer.getAvenue() != zona) {
             chofer.move();
         }
@@ -216,16 +236,11 @@ public class Parqueadero {
         matriz[espacio][zona] = carro;
         tiempos[espacio][zona] = System.currentTimeMillis();
         return true;
+        }
     }
-//hacer factura
 
-    public double factura(double tiempo_segundos) {
-        double valor_pesos;
-        valor_pesos = tiempo_segundos * 5;        
-        return valor_pesos;
-    }
-//sacar vehiculo
 
+    //sacar vehiculo
     public boolean sacar_vehiculo() {
         int zona, espacio;
         String placa;
@@ -268,9 +283,9 @@ public class Parqueadero {
             girar(2);
             //llega a la salida
             matriz[espacio][zona] = null;
-            tiempos[espacio][zona] = (System.currentTimeMillis() - tiempos[espacio][zona]) / 100;
+            tiempos[espacio][zona] = (System.currentTimeMillis() - tiempos[espacio][zona]) /1000;
             valor_a_pagar = factura(tiempos[espacio][zona]);
-            System.out.println("el valor a pagar es:" + valor_a_pagar );
+            System.out.println("el valor a pagar es:" + valor_a_pagar + " pesos.");
             ingresos_totales+= valor_a_pagar;
             tiempos[espacio][zona] = 0;
             System.out.println("¡Gracias!,vuelva pronto");
@@ -383,4 +398,29 @@ public class Parqueadero {
         
         return true;
     }
+
+    
+    //mostrar vehiculos en una seccion
+    public boolean mostrar_zona(){
+        System.out.println("ingrese la zona que desee conocer: ");
+        int zona= teclado.nextInt();
+        System.out.println("los vehiculos en la zona son: ");
+        for (int i = 0; i < 5; i++) {
+            if(matriz[i][zona]==null){
+                System.out.println("espacio: "+i+" no hay vehiculo en este espacio");
+            }else{
+            System.out.println("espacio: "+ i + " placa: " + matriz[i][zona].getIcon().getLabel()+ " y lleva: " + tiempo_dentro(tiempos[i][zona]) +" segundos dentro del parqueadero");
+            }
+        }
+        return true;
+    }
+
+    //imprime los ingresos totales de la jornada
+    public boolean reporte_ingresos(){
+        System.out.println("los ingresos en esta jornada de trabajo son: ");
+        System.out.println(ingresos_totales);
+        return true;
+    }
+
+    
 }

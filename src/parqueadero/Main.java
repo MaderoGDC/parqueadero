@@ -16,7 +16,7 @@ public class Main {
         int u=0;
         int operacion = 0;
         Scanner teclado = new Scanner(System.in);      
-        while(operacion != 5){
+        while(operacion < 5){
             //imprimir menu opciones
             System.out.println("Escoja una opción:  ");
             System.out.println("1:Ingresar un nuevo vehiculo");
@@ -32,6 +32,12 @@ public class Main {
                 case 2: 
                     parqueadero.sacar_vehiculo();
                 break;
+                case 3:
+                    parqueadero.mostrar_zona();
+                break;
+                case 4:
+                    parqueadero.reporte_ingresos();
+                break;    
                 default:
                 break;    
                     
