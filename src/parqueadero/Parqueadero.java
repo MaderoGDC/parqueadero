@@ -24,7 +24,6 @@ public class Parqueadero {
     private long[][] tiempos;
     private long[] tiempos_espera;
     private double ingresos_totales;
-    
 
     public Parqueadero() {
         teclado = new Scanner(System.in);
@@ -53,26 +52,50 @@ public class Parqueadero {
             }
         }
         Wall tope_inicio = new Wall(ciudad, 5, 8, Direction.EAST);
+
         //identificadores de zona
-        Thing zona1 = new Thing(this.ciudad, -1, 0);
-        zona1.getIcon().setColor(Color.cyan);
-        zona1.getIcon().setLabel("1");
+        Thing zona1 = new Thing(this.ciudad, 6, 0);
+        zona1.getIcon().setColor(Color.BLUE);
+        zona1.getIcon().setLabel("zona 1");
 
-        Thing zona2 = new Thing(this.ciudad, -1, 1);
+        Thing zona2 = new Thing(this.ciudad, 6, 1);
         zona2.getIcon().setColor(Color.cyan);
-        zona2.getIcon().setLabel("2");
+        zona2.getIcon().setLabel("zona 2");
 
-        Thing zona3 = new Thing(this.ciudad, -1, 2);
-        zona3.getIcon().setColor(Color.cyan);
-        zona3.getIcon().setLabel("3");
+        Thing zona3 = new Thing(this.ciudad, 6, 2);
+        zona3.getIcon().setColor(Color.BLUE);
+        zona3.getIcon().setLabel("zona 3");
         //entrada
         Thing entrada = new Thing(this.ciudad, 4, 8);
-        entrada.getIcon().setColor(Color.RED);
+        entrada.getIcon().setColor(Color.MAGENTA);
         entrada.getIcon().setLabel("Entrada");
 
-        this.chofer = new Robot(ciudad, 5, 8, Direction.WEST,0);
-        this.chofer.setColor(Color.ORANGE);
+        //zona de espera
+        Thing espera1 = new Thing(this.ciudad, 3, 3);
+        espera1.getIcon().setColor(Color.cyan);
+        espera1.getIcon().setLabel("zona");
+
+        Thing espera2 = new Thing(this.ciudad, 3, 4);
+        espera2.getIcon().setColor(Color.cyan);
+        espera2.getIcon().setLabel("de");
+
+        Thing espera3 = new Thing(this.ciudad, 3, 5);
+        espera3.getIcon().setColor(Color.cyan);
+        espera3.getIcon().setLabel("espera");
+
+        Thing espera4 = new Thing(this.ciudad, 3, 6);
+        espera4.getIcon().setColor(Color.cyan);
+        espera4.getIcon().setLabel("de");
+
+        Thing espera5 = new Thing(this.ciudad, 3, 7);
+        espera5.getIcon().setColor(Color.cyan);
+        espera5.getIcon().setLabel("vehiculos");
+
+        //crear chofer
+        this.chofer = new Robot(ciudad, 5, 8, Direction.WEST, 0);
+        this.chofer.setColor(Color.darkGray);
         this.chofer.setLabel("Chofer");
+
         matriz = new Thing[5][3];
         tiempos = new long[5][3];
         espera = new Thing[4];
@@ -83,34 +106,36 @@ public class Parqueadero {
                 matriz[j][i] = null;
             }
         }
-     //leno de ceros el tiempo espera
-        for(int i = 0; i<4 ;i++){
-        tiempos_espera[i]=0;    
+        //leno de ceros el tiempo espera
+        for (int i = 0; i < 4; i++) {
+            tiempos_espera[i] = 0;
         }
 
     }
-  
+
     //mover x pasos    
     public void mover(int pasos) {
         for (int i = pasos; i > 0; i--) {
             chofer.move();
         }
     }
-    
+
     //dar x giros
     public void girar(int giros) {
-            for (int i = giros; i > 0; i--) {
-                chofer.turnLeft();
-            }
+        for (int i = giros; i > 0; i--) {
+            chofer.turnLeft();
         }
+    }
 
     //giros
     public void giroDerecha() {
         girar(3);
     }
+
     public void giroIzquierda() {
         girar(1);
     }
+
     public void delante() {
         mover(1);
     }
@@ -132,8 +157,8 @@ public class Parqueadero {
                 mas_espacio = espacios[i];
             }
         }
-        if(mas_espacio==0){
-        return zona;
+        if (mas_espacio == 0) {
+            return zona;
         }
         for (int i = 0; i < 3; i++) {
             if (espacios[i] == mas_espacio) {
@@ -144,7 +169,7 @@ public class Parqueadero {
         }
         return zona;
     }
-    
+
     //identificador de espacio libre dentro de la zona
     public int espacio_libre(int zona) {
         for (int i = 0; i < 5; i++) {
@@ -154,22 +179,22 @@ public class Parqueadero {
         }
         return -1;
     }
-    
+
     //busca si la placa ya ha sido ingresada en el parqueadero
     public boolean buscar_placa(String placa) {
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 5; j++) {
-                    if (matriz[j][i] != null) {
-                        if (matriz[j][i].getIcon().getLabel().equals(placa)) {
-                            return true;
-                        }
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (matriz[j][i] != null) {
+                    if (matriz[j][i].getIcon().getLabel().equals(placa)) {
+                        return true;
                     }
-
                 }
 
             }
-            return false;
+
         }
+        return false;
+    }
 
     //buscar placa en alguna zona y devuelve su posicion
     public int buscar_placa_zona(int zona, String placa) {
@@ -183,24 +208,27 @@ public class Parqueadero {
     }
 
     //hacer factura devuelve el valor a cobrar
-    public double factura(double tiempo_segundos) {
+    public double factura(double tiempo_minutos) {
         double valor_pesos;
-        valor_pesos = tiempo_segundos * 5;        
+        if (tiempo_minutos == 0) {
+            return 5;
+        }
+        valor_pesos = tiempo_minutos * 5;
         return valor_pesos;
     }
 
     //tiempo en segs que lleva en el parqueadero
-    public long tiempo_dentro(long tiempo_de_entrada){
+    public long tiempo_dentro(long tiempo_de_entrada) {
         long tiempo_dentro;
         long tiempo_actual = System.currentTimeMillis();
-        tiempo_dentro = (tiempo_actual - tiempo_de_entrada)/1000;
+        tiempo_dentro = (tiempo_actual - tiempo_de_entrada) / 60000;
         return tiempo_dentro;
     }
-    
+
     //ingresar vehiculo
     public boolean ingresar_vehiculo() {
         int zona = zona_libre();
-        if(zona==6){
+        if (zona == 6) {
             System.out.println("lo sentimos el parqueadero esta lleno, vuelva mas tarde");
             return false;
         }
@@ -209,46 +237,48 @@ public class Parqueadero {
         if (buscar_placa(placa) == true) {
             System.out.println("ya hay un vehiculo registrado con esa placa");
             return false;
-        }else{
-        int espacio = espacio_libre(zona);
-        Thing carro = new Thing(ciudad, 5, 8);
-        carro.getIcon().setLabel(placa);
-        chofer.pickThing();
-        
-        while (chofer.getAvenue() != zona) {
-            chofer.move();
-        }
-        giroDerecha();
-        while (chofer.getStreet() != espacio) {
-            chofer.move();
-        }
-        chofer.putThing();
-        girar(2);
-        while (chofer.frontIsClear() == true) {
-            chofer.move();
-        }
-        girar(1);
-        while (chofer.frontIsClear() == true) {
-            chofer.move();
-        }
-        girar(2);
-        //se llena la matriz de control de vehiculos y la del tiempo con los datos
-        matriz[espacio][zona] = carro;
-        tiempos[espacio][zona] = System.currentTimeMillis();
-        return true;
+        } else {
+            int espacio = espacio_libre(zona);
+            Thing carro = new Thing(ciudad, 5, 8);
+            carro.getIcon().setColor(Color.LIGHT_GRAY);
+            carro.getIcon().setLabel(placa);
+            chofer.pickThing();
+
+            while (chofer.getAvenue() != zona) {
+                chofer.move();
+            }
+            giroDerecha();
+            while (chofer.getStreet() != espacio) {
+                chofer.move();
+            }
+            chofer.putThing();
+            girar(2);
+            while (chofer.frontIsClear() == true) {
+                chofer.move();
+            }
+            girar(1);
+            while (chofer.frontIsClear() == true) {
+                chofer.move();
+            }
+            girar(2);
+            //se llena la matriz de control de vehiculos y la del tiempo con los datos
+            matriz[espacio][zona] = carro;
+            tiempos[espacio][zona] = System.currentTimeMillis();
+            return true;
         }
     }
-
 
     //sacar vehiculo
     public boolean sacar_vehiculo() {
         int zona, espacio;
         String placa;
         double valor_a_pagar;
+        double tiempo_aqui;
         System.out.println("ingrese la zona de parqueo de su vehiculo: ");
-        zona = teclado.nextInt();
+        zona = teclado.nextInt() - 1;
         System.out.println("ingrese placa del vehiculo (letra y numero): ");
         placa = teclado.next();
+        teclado.nextLine();
         espacio = buscar_placa_zona(zona, placa);
         //buscar si el auto si esta en el parqueadero
         if (buscar_placa(placa) == false) {
@@ -283,10 +313,12 @@ public class Parqueadero {
             girar(2);
             //llega a la salida
             matriz[espacio][zona] = null;
-            tiempos[espacio][zona] = (System.currentTimeMillis() - tiempos[espacio][zona]) /1000;
+            tiempos[espacio][zona] = (System.currentTimeMillis() - tiempos[espacio][zona]) / 60000;
             valor_a_pagar = factura(tiempos[espacio][zona]);
+            tiempo_aqui = tiempo_dentro(tiempos[espacio][zona]);
+            System.out.println("lleva " + tiempo_aqui + " minutos en el parqueadero");
             System.out.println("el valor a pagar es:" + valor_a_pagar + " pesos.");
-            ingresos_totales+= valor_a_pagar;
+            ingresos_totales += valor_a_pagar;
             tiempos[espacio][zona] = 0;
             System.out.println("¡Gracias!,vuelva pronto");
             return true;
@@ -304,41 +336,43 @@ public class Parqueadero {
             if (!chofer.canPickThing()) {
                 mover(1);
                 contador_y--;
-            } else {                
-                System.out.println("Placa buscada: " + placa);
+            } else {
                 if (matriz[contador_y][zona].getIcon().getLabel().equals(placa)) {
                     System.out.println("Encontrado");
                     flag = false;
                     chofer.pickThing();
                     girar(2);
-                    while(chofer.frontIsClear()){
+                    while (chofer.frontIsClear()) {
                         mover(1);
                     }
                     girar(1);
-                    while(chofer.frontIsClear()){
+                    while (chofer.frontIsClear()) {
                         mover(1);
                     }
                     girar(2);
                     matriz[contador_y][zona] = null;
-                    tiempos[contador_y][zona] = (System.currentTimeMillis() - tiempos[espacio][zona]) / 100;
+                    tiempos[contador_y][zona] = (System.currentTimeMillis() - tiempos[espacio][zona]) / 60000;
                     valor_a_pagar = factura(tiempos[espacio][zona]);
-                    System.out.println("el valor a pagar es:" + valor_a_pagar );
-                    ingresos_totales+= valor_a_pagar;
+                    tiempo_aqui = tiempo_dentro(tiempos[espacio][zona]);
+                    System.out.println("lleva " + tiempo_aqui + " minutos en el parqueadero");
+                    System.out.println("el valor a pagar es:" + valor_a_pagar + " pesos.");
+                    ingresos_totales += valor_a_pagar;
                     tiempos[contador_y][zona] = 0;
                     System.out.println("¡Gracias!,vuelva pronto");
                     //System.out.println("ingresos hasta ahora" + ingresos_totales );
                     mover(5);
                     giroDerecha();
                     //devolver carros en espera al parqueadero
-                    while(contador_espera>0){
-                    mover(1);
-                    chofer.pickThing();
-                    girar(2);
-                    mover(1);
-                    girar(3);
-                    int lugar = espacio_libre(zona);
-                    int indice_espera=0;
-                        int movimiento = 0;
+                    int indice_espera = 0;
+                    int movimiento = 0;
+                    while (contador_espera > 0) {
+                        mover(1);
+                        chofer.pickThing();
+                        girar(2);
+                        mover(1);
+                        girar(3);
+                        int lugar = espacio_libre(zona);
+                        //
                         while (chofer.getAvenue() != zona) {
                             chofer.move();
                             movimiento++;
@@ -349,31 +383,31 @@ public class Parqueadero {
                         }
                         matriz[chofer.getStreet()][chofer.getAvenue()] = espera[indice_espera];
                         tiempos[chofer.getStreet()][chofer.getAvenue()] = tiempos_espera[indice_espera];
-                        espera[indice_espera]=null;
-                        tiempos_espera[indice_espera]=0;
+                        espera[indice_espera] = null;
+                        tiempos_espera[indice_espera] = 0;
                         chofer.putThing();
                         girar(2);
                         while (chofer.frontIsClear()) {
                             chofer.move();
                         }
                         girar(1);
-                        mover(movimiento+1);
+                        mover(movimiento + 1);
                         girar(1);
                         movimiento = 0;
                         contador_espera--;
                         indice_espera++;
                     }
                     girar(3);
-                    while(chofer.frontIsClear()){
-                    mover(1);
+                    while (chofer.frontIsClear()) {
+                        mover(1);
                     }
                     girar(2);
                     return true;
                 } else {
                     //lleva vahiculos a zona de espera
                     chofer.pickThing();
-                    espera[contador_espera] = matriz[chofer.getStreet()][chofer.getAvenue()];                    
-                    tiempos_espera [contador_espera] = tiempos[chofer.getStreet()][chofer.getAvenue()];
+                    espera[contador_espera] = matriz[chofer.getStreet()][chofer.getAvenue()];
+                    tiempos_espera[contador_espera] = tiempos[chofer.getStreet()][chofer.getAvenue()];
                     matriz[chofer.getStreet()][chofer.getAvenue()] = null;
                     tiempos[chofer.getStreet()][chofer.getAvenue()] = 0;
                     girar(2);
@@ -382,7 +416,7 @@ public class Parqueadero {
                     mover((3 - zona) + contador_espera);
                     girar(1);
                     mover(1);
-                    chofer.putThing();                    
+                    chofer.putThing();
                     girar(2);
                     mover(1);
                     giroDerecha();
@@ -390,37 +424,35 @@ public class Parqueadero {
                     contador_espera++;
                     giroDerecha();
                     contador_y--;
-                    mover(4 - contador_y + 1);                
+                    mover(4 - contador_y + 1);
                 }
 
             }
         }
-        
+
         return true;
     }
 
-    
     //mostrar vehiculos en una seccion
-    public boolean mostrar_zona(){
+    public boolean mostrar_zona() {
         System.out.println("ingrese la zona que desee conocer: ");
-        int zona= teclado.nextInt();
+        int zona = teclado.nextInt() - 1;
         System.out.println("los vehiculos en la zona son: ");
         for (int i = 0; i < 5; i++) {
-            if(matriz[i][zona]==null){
-                System.out.println("espacio: "+i+" no hay vehiculo en este espacio");
-            }else{
-            System.out.println("espacio: "+ i + " placa: " + matriz[i][zona].getIcon().getLabel()+ " y lleva: " + tiempo_dentro(tiempos[i][zona]) +" segundos dentro del parqueadero");
+            if (matriz[i][zona] == null) {
+                System.out.println("espacio: " + i + " no hay carro ");
+            } else {
+                System.out.println("espacio: " + i + " placa: " + matriz[i][zona].getIcon().getLabel() + " y lleva: " + tiempo_dentro(tiempos[i][zona]) + " minutos dentro del parqueadero");
             }
         }
         return true;
     }
 
     //imprime los ingresos totales de la jornada
-    public boolean reporte_ingresos(){
+    public boolean reporte_ingresos() {
         System.out.println("los ingresos en esta jornada de trabajo son: ");
         System.out.println(ingresos_totales);
         return true;
     }
 
-    
 }
